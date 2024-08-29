@@ -35,8 +35,14 @@ func main() {
 		del()
 	case "r":
 		rec()
+	case "v":
+		v()
 		break
 	}
+}
+
+func v() {
+	storage.All()
 }
 
 func h() {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 	"strconv"
@@ -33,6 +34,45 @@ type Version struct {
 	Version int64  `json:"version"`
 	Created int64  `json:"created"`
 	Desc    string `json:"desc"`
+}
+
+func All() (all []FileMeta) {
+	root, _ := os.UserConfigDir()
+
+	appRoot, err := os.Open(path.Join(root, "list-version"))
+	if err != nil {
+		fmt.Println("%s", "打开文件失败0"+err.Error())
+		if errors.Is(err, os.ErrNotExist) {
+			os.Mkdir(path.Join(root, "list-version"), os.ModePerm)
+		}
+	}
+
+	defer func() {
+		if appRoot != nil {
+			appRoot.Close()
+		}
+	}()
+
+	sub, _ := appRoot.Readdir(0)
+	pwd, _ := os.Getwd()
+	log.Println("pwd:", pwd)
+	for _, fi := range sub {
+		var meta FileMeta
+
+		fileMeta, err := os.Open(path.Join(root, "list-version", fi.Name(), "meta.json"))
+		// not saved yet
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		defer fileMeta.Close()
+		// read meta.json
+
+		buf, _ := io.ReadAll(fileMeta)
+		json.Unmarshal(buf, &meta)
+		fmt.Printf("[%d] %s\n", len(meta.Versions), meta.AbsolutePath)
+	}
+
+	return all
 }
 
 func Extract(fullPath string, version Version) {
