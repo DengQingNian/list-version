@@ -42,7 +42,13 @@ func main() {
 }
 
 func v() {
-	storage.All()
+	path := ""
+
+	if len(os.Args) > 2 {
+		path = os.Args[2]
+	}
+
+	storage.All(path == "." || path == "./")
 }
 
 func h() {

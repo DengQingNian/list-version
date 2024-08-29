@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"git.dengqn.com/dqn/listversion/util"
 )
@@ -36,7 +37,7 @@ type Version struct {
 	Desc    string `json:"desc"`
 }
 
-func All() (all []FileMeta) {
+func All(current bool) (all []FileMeta) {
 	root, _ := os.UserConfigDir()
 
 	appRoot, err := os.Open(path.Join(root, "list-version"))
@@ -54,8 +55,10 @@ func All() (all []FileMeta) {
 	}()
 
 	sub, _ := appRoot.Readdir(0)
+
+	// filter this wd
 	pwd, _ := os.Getwd()
-	log.Println("pwd:", pwd)
+	// log.Println("pwd:", pwd)
 	for _, fi := range sub {
 		var meta FileMeta
 
@@ -64,11 +67,27 @@ func All() (all []FileMeta) {
 		if errors.Is(err, os.ErrNotExist) {
 			continue
 		}
-		defer fileMeta.Close()
 		// read meta.json
 
 		buf, _ := io.ReadAll(fileMeta)
 		json.Unmarshal(buf, &meta)
+		fileMeta.Close()
+
+		if current {
+			if !strings.HasPrefix(meta.AbsolutePath, pwd) {
+				continue
+			}
+		}
+
+		if len(meta.Versions) == 0 {
+			// rm
+			err = os.RemoveAll(path.Join(root, "list-version", fi.Name()))
+			if err != nil {
+				log.Panicln(err.Error())
+			}
+			continue
+		}
+
 		fmt.Printf("[%d] %s\n", len(meta.Versions), meta.AbsolutePath)
 	}
 
