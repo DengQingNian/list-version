@@ -1,0 +1,5 @@
+*.exe
+out/
+.vscode/
+.iml
+.DS_Store
