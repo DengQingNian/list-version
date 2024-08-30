@@ -123,7 +123,7 @@ func add() {
 		Version: max + 1,
 	})
 
-	fmt.Println("meta:", meta)
+	// fmt.Println("meta:", meta)
 
 	storage.SaveMeta(util.ToHashHex(fullPath), meta)
 	storage.CopyData(fullPath, meta.Versions[len(meta.Versions)-1])
