@@ -1,12 +1,13 @@
 package util
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
+	"crypto/md5"
+	"fmt"
+	"io"
 )
 
 func ToHashHex(filePath string) string {
-	s1 := sha1.New()
-	buf := s1.Sum([]byte(filePath))
-	return hex.EncodeToString(buf)
+	h := md5.New()
+	io.WriteString(h, filePath)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

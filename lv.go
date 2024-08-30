@@ -122,9 +122,11 @@ func add() {
 		Created: time.Now().UnixMilli(),
 		Version: max + 1,
 	})
+
+	fmt.Println("meta:", meta)
+
 	storage.SaveMeta(util.ToHashHex(fullPath), meta)
 	storage.CopyData(fullPath, meta.Versions[len(meta.Versions)-1])
-	fmt.Println("version copied")
 }
 
 func del() {
